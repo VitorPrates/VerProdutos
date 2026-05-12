@@ -10,11 +10,13 @@
     <button onclick="consultarItem()">Pesquisar</button>
 
     <div id="resultado"></div>
+    <img id="img_result" src="" alt="">
     
 
     <script>    
     async function consultarItem() {
         const id = document.getElementById('idItem').value;
+        const img_result = document.getElementById('img_result')
         const resultado = document.getElementById('resultado');
             
         resultado.innerHTML = "Procurando..."
@@ -26,6 +28,7 @@
             const response = await fetch(url);
             const dados = await response.json();
             resultado.innerHTML = `Encontrado: ${dados.quantidade}`
+            img_result.src = dados.foto
             console.log(dados);
 
         } catch (err) {

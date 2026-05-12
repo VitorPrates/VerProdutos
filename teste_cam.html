@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner Nativo</title>
+    <style>
+        #video-container { width: 100%; max-width: 400px; position: relative; }
+        video { width: 100%; border-radius: 8px; background: #000; }
+        .resultado { margin-top: 20px; font-family: sans-serif; }
+        input { padding: 10px; width: 100%; box-sizing: border-box; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <div id="video-container">
+        <video id="camera" autoplay playsinline></video>
+    </div>
+
+    <div class="resultado">
+        <label>Código Detectado:</label>
+        <input type="text" id="resultado-input" placeholder="Aguardando leitura...">
+        <p id="status"></p>
+    </div>
+
+    <script>
+        const video = document.getElementById('camera');
+        const inputResultado = document.getElementById('resultado-input');
+        const status = document.getElementById('status');
+
+        // 1. Verificar se o navegador suporta a API
+        if (!('BarcodeDetector' in window)) {
+            status.innerText = "Barcode Detector não suportado neste navegador.";
+        } else {
+            iniciarCamera();
+        }
+
+        async function iniciarCamera() {
+            try {
+                // Solicita acesso à câmera traseira
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: { exact: "environment" } } 
+                });
+                video.srcObject = stream;
+                
+                // Inicia a detecção após o vídeo carregar
+                video.addEventListener('loadeddata', detectarCodigos);
+            } catch (err) {
+                console.error("Erro ao acessar câmera:", err);
+                status.innerText = "Erro ao acessar a câmera traseira.";
+            }
+        }
+
+        async function detectarCodigos() {
+            // Instancia o detector (pode-se especificar os formatos como 'ean_13', 'qr_code', etc)
+            const barcodeDetector = new BarcodeDetector();
+
+            async function render() {
+                try {
+                    // Tenta detectar códigos no frame atual do vídeo
+                    const barcodes = await barcodeDetector.detect(video);
+                    
+                    if (barcodes.length > 0) {
+                        const valorLido = barcodes[0].rawValue;
+                        
+                        // Insere o valor no input
+                        inputResultado.value = valorLido;
+                        
+                        // Feedback visual opcional: piscar o input ou vibrar o celular
+                        if (navigator.vibrate) navigator.vibrate(100);
+                    }
+                } catch (e) {
+                    // Erros silenciosos durante a renderização
+                }
+                // Continua o loop de detecção
+                requestAnimationFrame(render);
+            }
+            
+            render();
+        }
+    </script>
+</body>
+</html>
