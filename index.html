@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input type="text" id="idItem" placeholder="Digite o ID do item">
+    <button onclick="consultarItem()">Pesquisar</button>
+
+    <div id="resultado"></div>
+    
+
+    <script>    
+    async function consultarItem() {
+        const id = document.getElementById('idItem').value;
+        const resultado = document.getElementById('resultado');
+            
+        resultado.innerHTML = "Procurando..."
+
+        const url =
+        `https://script.google.com/macros/s/AKfycbzfE5WMUduzkve1dnkYvb3VeeDW5GotJIlQCkjGxiYI1OzxCvGWgVUhx6DEKn8W-wpMTQ/exec?id=${encodeURIComponent(id)}`;
+
+        try {
+            const response = await fetch(url);
+            const dados = await response.json();
+            resultado.innerHTML = `Encontrado: ${dados.quantidade}`
+            console.log(dados);
+
+        } catch (err) {
+            resultado.innerHTML = "não encontrado"
+            console.error(err);
+        }
+    }
+    </script>
+</body>
+</html>
